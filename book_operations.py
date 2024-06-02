@@ -56,13 +56,10 @@ def book_Operations():
 
             elif menu_option == 2:
                 if len(library) <= 0:
-                    print("CAN'T BORROW ANY BOOK LIBRARY IS EMPTY")
+                    print("CAN'T BORROW ANY BOOK LIBRARY DOESN'T EXIST")
                     continue
 
                 elif len(library) > 0:
-
-                    library_title_value = library[library_book.isbn]["Title"].lower()
-                    library_availability_value = library[library_book.isbn]["Availability"].lower()
                     
                     while True:
                         try:
@@ -94,7 +91,17 @@ def book_Operations():
 
                         
             elif menu_option == 3:
-                pass
+                if len(library) <= 0:
+                    print("CAN'T RETURN ANY BOOK LIBRARY DOESN'T EXIST")
+                    continue
+
+                elif len(library) > 0:
+                    while True:
+                        try:
+                            enter_title = input("Enter Title of boo")
+
+                        except Exception as e:
+                            print("An error has occured", e)
 
             elif menu_option == 4:
                 pass
