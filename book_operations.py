@@ -60,6 +60,10 @@ def book_Operations():
                     continue
 
                 elif len(library) > 0:
+
+                    library_title_value = library[library_book.isbn]["Title"].lower()
+                    library_availability_value = library[library_book.isbn]["Availability"].lower()
+                    
                     while True:
                         try:
                             enter_title = input("Enter title to borrow book: *enter 'done' when finsished: ")
@@ -68,16 +72,20 @@ def book_Operations():
                                 break
                             
                             for isbn, details in library.items():
-                                for key, value in details.items():
+                                if enter_title.lower() == details["Title"].lower():
 
-                                    if enter_title in value and details["Availability"].lower() == 'yes':
-                                        details[enter_availability] = "no"
-                                        print(f"{enter_title} checked out")
+                                    if details["Availability"].lower() == "no":
+                                        print(f"{enter_title} is currently checked out")
+                                    
+                                    elif details["Availability"].lower() == 'yes':
+                                        details["Availability"] = "no"
+                                        print(f"{enter_title} has been checked out\n")
+                                        print(f"Availability: {details['Availability']}")
+                                    break
+                            else:
+                                print(f"{enter_title} not in Library")
+                                continue
 
-                                    elif enter_title not in value:
-                                        print("Book is not in Library")
-                                        continue
-                                
                         except Exception as e:
                             print("An error has occured", e)
                             continue
