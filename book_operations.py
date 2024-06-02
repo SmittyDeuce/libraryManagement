@@ -1,5 +1,6 @@
 from book_class import Book
 def book_Operations():
+
     library = {}
     counter = 0
     print("1. Add Book\n"
@@ -12,6 +13,7 @@ def book_Operations():
         try:
             menu_option = int(input("Enter Option: "))
 
+
             if menu_option == 5:
                 break
             
@@ -19,15 +21,70 @@ def book_Operations():
                 print("Please enter one of the options")
                 continue
 
+
             elif menu_option == 1:
-                enter_title = input("Enter Title: ")
-                counter += 1
-                # "book" + counter
+                while True:
+
+                    enter_title = input("Enter Title: *enter 'done' when finished* ")
+
+                    if enter_title.lower() == 'done':
+                        print(library)
+                        break
+
+                    counter += 1
+                    enter_author = input("Enter author: ")
+                    enter_isbn = input("Enter ISBN: ")
+                    enter_genre = input("Enter genre: ")
+                    enter_publication_date = input("Enter publication date (MM-DD-YYYY): ")
+                    enter_availability = input("Enter availability (Yes/No): ")
+
+                    library_book = counter
+                    library_book = Book(enter_title, enter_author, enter_isbn, enter_genre, enter_publication_date, enter_availability)
+
+                    if library_book.isbn not in library:
+                        library[library_book.isbn] = {
+                            "Title": library_book.title,
+                            "Author": library_book.author,
+                            "Genre": library_book.genre,
+                            "Publication Date": library_book.publication_date,
+                            "Availability": library_book.availability
+                        }
+
+                    else:
+                        print("This Book is already inside Library")
                 
 
             elif menu_option == 2:
-                pass
+                if len(library) <= 0:
+                    print("CAN'T BORROW ANY BOOK LIBRARY IS EMPTY")
+                    continue
 
+                elif len(library) > 0:
+                    while True:
+                        try:
+                            enter_title = input("Enter title to borrow book: *enter 'done' when finsished: ")
+
+                            if enter_title.lower() == 'done':
+                                break
+                            
+                            for isbn, details in library.items():
+                                for key, value in details.items():
+
+                                    if enter_title in value and details["Availability"].lower() == 'yes':
+                                        details[enter_availability] = "no"
+                                        print(f"{enter_title} checked out")
+
+                                    elif enter_title not in value:
+                                        print("Book is not in Library")
+                                        continue
+                                
+                        except Exception as e:
+                            print("An error has occured", e)
+                            continue
+                                    
+
+
+                        
             elif menu_option == 3:
                 pass
 

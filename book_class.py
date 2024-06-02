@@ -5,7 +5,6 @@ class Book:
         self.title = title
         self.author = author
         self.genre = genre
-        self.availability = availabilty
 
         if publication_date and re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$', publication_date):
             print("Date syntax is valid")
@@ -23,15 +22,29 @@ class Book:
             print("Invalid ISBN\n")
             fix_isbn = input("Enter ISBN: ")
             self.isbn = fix_isbn
+        
+        if availabilty.lower() in ["yes","no"]:
+            self.availability = availabilty
+
+        else:
+            print("Availability must be 'Yes' or 'No'")
+            fix_availability = input("Enter Availability: ")
+
+            while fix_availability.lower() not in ["yes","no"]:
+                print("Invalid Repsonse")
+                fix_availability = input("Enter Availability: ")
+            self.availability = fix_availability
 
 
 
-book1 = Book("Eggs", "suess", "123-456789-712345-67", "childrens", "8-12-1960", "yes" )
 
-# print(book1.isbn)
+book1 = Book("Eggs", "suess", "123-456789-712345-67", "childrens", "8-12-1960", "maybe" )
+# print(book1.availability)
 
-# book1.check_isbn()
+# # print(book1.isbn)
 
-# print(book1.isbn)
+# # book1.check_isbn()
 
-print(book1.publication_date)
+# # print(book1.isbn)
+
+# print(book1.publication_date)
