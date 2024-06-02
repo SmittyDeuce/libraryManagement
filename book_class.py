@@ -5,14 +5,22 @@ class Book:
         self.title = title
         self.author = author
         self.genre = genre
+        
+        publication_date_criteria = re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$', publication_date)
 
-        if publication_date and re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$', publication_date):
+        if publication_date and publication_date_criteria:
             print("Date syntax is valid")
             self.publication_date = publication_date
         else:
             print("Date format must be: MM-DD-YYYY")
-            fix_date = input("Enter Publish Date: ")
-            self.publication_date = fix_date
+            while True:
+                fix_date = input("Enter Publish Date: ")
+                if re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$', fix_date):
+                    self.publication_date = fix_date
+                    break
+                else:
+                    print("Invalid Format")
+                    continue
 
         if isbn and re.match(r'\d{1,}-\d{3,}-\d{5,}-\d{2,}', isbn):
             print("ISBN is valid")
@@ -28,17 +36,22 @@ class Book:
 
         else:
             print("Availability must be 'Yes' or 'No'")
-            fix_availability = input("Enter Availability: ")
+            while True:
 
-            while fix_availability.lower() not in ["yes","no"]:
-                print("Invalid Repsonse")
                 fix_availability = input("Enter Availability: ")
-            self.availability = fix_availability
+
+                if fix_availability.lower() in ["yes","no"]:
+                    self.availability = fix_availability
+                    break
+
+                else:
+                    print("Respond with 'yes' or 'no'")
+                    continue
 
 
 
 
-book1 = Book("Eggs", "suess", "123-456789-712345-67", "childrens", "8-12-1960", "maybe" )
+# book1 = Book("Eggs", "suess", "123-456789-712345-67", "childrens", "08-12-1960", "maybe" )
 # print(book1.availability)
 
 # # print(book1.isbn)
@@ -47,4 +60,4 @@ book1 = Book("Eggs", "suess", "123-456789-712345-67", "childrens", "8-12-1960", 
 
 # # print(book1.isbn)
 
-# print(book1.publication_date)
+print(book1.publication_date)
