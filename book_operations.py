@@ -7,17 +7,18 @@ def book_Operations():
           "2. Borrow Book\n"
           "3. Return Book\n"
           "4. Search for Book\n"
-          "5. Quit")
+          "5. Display Library\n"
+          "6. Quit")
     
     while True:
         try:
             menu_option = int(input("Enter Option: "))
 
 
-            if menu_option == 5:
+            if menu_option == 6:
                 break
             
-            elif menu_option not in range(1,5):
+            elif menu_option not in range(1,6):
                 print("Please enter one of the options")
                 continue
 
@@ -28,8 +29,11 @@ def book_Operations():
                     enter_title = input("Enter Title: *enter 'done' when finished* ")
 
                     if enter_title.lower() == 'done':
-                        print(library)
-                        break
+                        for isbn, details in library.items():
+                            print(f"ISBN: {isbn}")
+                            for key, value in details.items():
+                                print(f"{key}: {value}")
+                            break
 
                     counter += 1
                     enter_author = input("Enter author: ")
@@ -59,7 +63,7 @@ def book_Operations():
                     print("Library is empty")
                     continue
 
-                elif len(library) > 0:
+                else:
                     
                     while True:
                         try:
@@ -95,7 +99,7 @@ def book_Operations():
                     print("Library is empty")
                     continue
 
-                elif len(library) > 0:
+                else:
                     while True:
                         try:
                             enter_title = input("Enter book title to return: *enter 'done' when finished\n")
@@ -130,7 +134,7 @@ def book_Operations():
                     print("Library is empty")
                     continue
 
-                elif len(library) > 0:
+                else:
                     while True:
                         try:
                             isbn_or_title = input("Enter ISBN or Title: *enter 'done' when finished ")
@@ -154,7 +158,19 @@ def book_Operations():
                             print("An error has occured", e)
                             continue
 
+            elif menu_option == 5:
+                if len(library) <= 0:
+                    print("Library is empty")
+                    continue
+                    
+                else:
+                    for isbn, details in library.items():
+                        print(f"ISBN: {isbn}")
+                        for key, value in details.items():
+                            print(f"{key}: {value}")
+                        break
+
         except ValueError:
-            print("Menu Option must be number 1 - 5")
+            print("Menu Option must be number 1 - 6")
             continue
 book_Operations()
