@@ -98,24 +98,29 @@ def book_Operations():
                 elif len(library) > 0:
                     while True:
                         try:
-                            enter_title = input("Enter book title to return: *enter 'done' when finished ")
+                            enter_title = input("Enter book title to return: *enter 'done' when finished\n")
 
                             if enter_title.lower() == 'done':
                                 break
 
-                            for isbn, details in library.items:
-                                if enter_title.lower() == details["Title"].lower() and details["Availability"].lower() == 'no':
-                                    details["Availability"] = 'yes'
-                                    print("Book returned")
-                                    break
-                                elif enter_title not in details["Title"]:
+                            for isbn, details in library.items():
+                                if enter_title not in details["Title"]:
                                     print("Book doesn't belong to this library")
                                     continue
 
-                                else:
-                                    pass
-                                    
+                                elif enter_title.lower() == details["Title"].lower() and details["Availability"].lower() == 'no':
+                                    print(f"Title: {details['Title']} Availability: {details['Availability']}")
+                                    details["Availability"] = 'yes'
+                                    print(f"Book returned\nTitle: {details['Title']} Availability: {details['Availability']}")
+                                    continue
 
+                                elif enter_title.lower() == details["Title"].lower() and details["Availability"].lower() == 'yes':
+                                    print("Book has already been returned")
+                                    continue
+                                else:
+                                    print("An Unexpected error occured: try again")
+                                    continue
+                                
                         except Exception as e:
                             print("An error has occured", e)
 
