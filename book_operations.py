@@ -56,7 +56,7 @@ def book_Operations():
 
             elif menu_option == 2:
                 if len(library) <= 0:
-                    print("CAN'T BORROW ANY BOOK LIBRARY DOESN'T EXIST")
+                    print("Library is empty")
                     continue
 
                 elif len(library) > 0:
@@ -92,7 +92,7 @@ def book_Operations():
                         
             elif menu_option == 3:
                 if len(library) <= 0:
-                    print("CAN'T RETURN ANY BOOK LIBRARY DOESN'T EXIST")
+                    print("Library is empty")
                     continue
 
                 elif len(library) > 0:
@@ -120,12 +120,39 @@ def book_Operations():
                                 else:
                                     print("An Unexpected error occured: try again")
                                     continue
-                                
+
                         except Exception as e:
                             print("An error has occured", e)
+                            continue
 
             elif menu_option == 4:
-                pass
+                if len(library) <= 0:
+                    print("Library is empty")
+                    continue
+
+                elif len(library) > 0:
+                    while True:
+                        try:
+                            isbn_or_title = input("Enter ISBN or Title: *enter 'done' when finished ")
+                            
+                            if isbn_or_title.lower() == 'done':
+                                break
+
+                            for isbn, details in library.items():
+                                if isbn == isbn_or_title or details["Title"].lower() == isbn_or_title.lower():
+                                    print(f"ISBN: {isbn}")
+                                    for key, value in details.items():
+                                        print(f"{key}: {value}")
+                                    break
+
+                                else:
+                                    print("ISBN or Title not found try again")
+                                    continue
+                                
+
+                        except Exception as e:
+                            print("An error has occured", e)
+                            continue
 
         except ValueError:
             print("Menu Option must be number 1 - 5")
