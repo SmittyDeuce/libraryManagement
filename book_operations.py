@@ -98,7 +98,23 @@ def book_Operations():
                 elif len(library) > 0:
                     while True:
                         try:
-                            enter_title = input("Enter Title of boo")
+                            enter_title = input("Enter book title to return: *enter 'done' when finished ")
+
+                            if enter_title.lower() == 'done':
+                                break
+
+                            for isbn, details in library.items:
+                                if enter_title.lower() == details["Title"].lower() and details["Availability"].lower() == 'no':
+                                    details["Availability"] = 'yes'
+                                    print("Book returned")
+                                    break
+                                elif enter_title not in details["Title"]:
+                                    print("Book doesn't belong to this library")
+                                    continue
+
+                                else:
+                                    pass
+                                    
 
                         except Exception as e:
                             print("An error has occured", e)
