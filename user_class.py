@@ -1,5 +1,5 @@
 import re
-from book_operations import borrow_book, return_book, display_library, search_for_book
+from book_operations import book_Operations,library
 class User:
     def __init__(self, name, id_num):
 
@@ -39,31 +39,33 @@ class User:
     def get_id(self):
         return self.__id_num
 
-    def borrow_book(self, title):
-        borrowed = borrow_book(title)
-        if borrowed:
-            self.borrowed_books.append(borrowed["Title"])
+    def borrow_book(self):
+        book_Operations()
 
-    def return_book(self, title):
-        returned = return_book(title)
-        if returned:
-            self.borrowed_books.remove(returned["Title"])
+        title = input("Enter title of book to borrow: ")
+
+        for isbn, details in library.items():
+            if title.lower() == details["Title"].lower():
+                if details["Availability"].lower() == 'yes':
+                    self.borrowed_books.append(details["Availability"])
+                    details["Availability"] = 'no'
+                    print(f"{self.name} checked out {title}")
+                    return
+                
+                else:
+                    print(f"{title} not available")
+                    return
+    
 
     def display_borrowed_books(self):
-        if not self.borrowed_books:
+        if len(self.borrowed_books) <= 0:
             print(f"{self.name} has no books checked out")
-        else:
-            print(f"{self.name}'s books:")
-            for book in self.borrowed_books:
-                print(book)
 
-    def search_for_book(self, isbn_or_title):
-        book = search_for_book(isbn_or_title)
-        if book:
-            print(f"Book found: {book}")
         else:
-            print("Book not found.")
-    
+            print(f"{self.name}'s borrowed books:")
+            print(self.borrowed_books)
+      
+
 
 
 
@@ -73,6 +75,6 @@ print(user1.name)
 
 print(user1.get_id())
 
-user1.search_for_book("the who")
+user1.borrow_book()
 user1.display_borrowed_books()
 
