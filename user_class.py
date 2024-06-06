@@ -1,5 +1,5 @@
 import re
-from book_operations import book_Operations,library
+from book_operations import book_Operations
 class User:
     def __init__(self, name, id_num):
 
@@ -40,22 +40,7 @@ class User:
         return self.__id_num
 
     def borrow_book(self):
-        book_Operations()
-
-        title = input("Enter title of book to borrow: ")
-
-        for isbn, details in library.items():
-            if title.lower() == details["Title"].lower():
-                if details["Availability"].lower() == 'yes':
-                    self.borrowed_books.append(details["Availability"])
-                    details["Availability"] = 'no'
-                    print(f"{self.name} checked out {title}")
-                    return
-                
-                else:
-                    print(f"{title} not available")
-                    return
-    
+        book_Operations(self)
 
     def display_borrowed_books(self):
         if len(self.borrowed_books) <= 0:

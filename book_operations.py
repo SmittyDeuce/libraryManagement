@@ -26,7 +26,7 @@ def add_book():
         else:
             print("This Book is already inside Library")
 
-def borrow_book():
+def borrow_book(user):
     while True:
         try:
             enter_title = input("Enter title to borrow book: *enter 'done' when finsished: ")
@@ -40,6 +40,7 @@ def borrow_book():
                     
                     elif details["Availability"].lower() == 'yes':
                         details["Availability"] = "no"
+                        user.borrowed_books.append(details["Title"])
                         print(f"{enter_title} has been checked out\n")
                         print(f"Availability: {details['Availability']}")
                     break
@@ -114,7 +115,7 @@ def display_library():
 
 
 
-def book_Operations():
+def book_Operations(user):
     print("1. Add Book\n"
           "2. Borrow Book\n"
           "3. Return Book\n"
@@ -141,7 +142,7 @@ def book_Operations():
                     continue
 
                 elif len(library) > 0:
-                    borrow_book()
+                    borrow_book(user)
                                     
             elif menu_option == 3:
                 if len(library) <= 0:
@@ -172,4 +173,4 @@ def book_Operations():
             continue
 
 
-book_Operations()
+# book_Operations()
