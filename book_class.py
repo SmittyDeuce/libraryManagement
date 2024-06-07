@@ -6,12 +6,14 @@ class Book:
         self.author = author
         self.genre = genre
         
+         # Validate the publication date format
         publication_date_criteria = re.match(r'^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$', publication_date)
 
         if publication_date and publication_date_criteria:
             print("Date syntax is valid")
             self.publication_date = publication_date
         else:
+             # user input for valid date format if initial format is incorrect
             print("Date format must be: MM-DD-YYYY")
             while True:
                 fix_date = input("Enter Publish Date: ")
@@ -22,19 +24,23 @@ class Book:
                     print("Invalid Format")
                     continue
 
+        # Validate ISBN format
         if isbn and re.match(r'\d{1,}-\d{3,}-\d{5,}-\d{2,}', isbn):
             print("ISBN is valid")
             self.isbn = isbn
 
         else:
+             # enter a valid ISBN if initial format is incorrect
             print("Invalid ISBN\n")
             fix_isbn = input("Enter ISBN: ")
             self.isbn = fix_isbn
-        
+
+         # Validate availability input
         if availabilty.lower() in ["yes","no"]:
             self.availability = availabilty
 
         else:
+            # enter a valid availability status if initial input is incorrect
             print("Availability must be 'Yes' or 'No'")
             while True:
 
