@@ -7,8 +7,10 @@ library = {}
 # Function to add a book to the library
 def add_book():
     while True:
+        # Prompt user to enter book details
         enter_title = input("Enter Title: *enter 'done' when finished* ")
         if enter_title.lower() == 'done':
+            # If user inputs 'done', print the library and exit the loop
             print(library)
             break
 
@@ -20,8 +22,10 @@ def add_book():
 
         # Create a new Book instance
         library_book = Book(enter_title, enter_author, enter_isbn, enter_genre, enter_publication_date, enter_availability)
+        
+        # Check if the book's ISBN is not already in the library
         if library_book.isbn not in library:
-            # Add the book to the library dictionary if the ISBN is not already present
+            # Add the book to the library dictionary
             library[library_book.isbn] = {
                 "Title": library_book.title,
                 "Author": library_book.author,
@@ -32,30 +36,38 @@ def add_book():
         else:
             print("This Book is already inside Library")
 
-
-
+# Function to borrow a book from the library
 def borrow_book(users_dict):
-    # Borrowing a book
-    enter_title = input("Enter title to Borrow: *enter 'done' when finished* ")
-    if enter_title.lower() == 'done':
-        return
-    for isbn, details in library.items():
-        if enter_title.lower() == details["Title"].lower() and details["Availability"] == "yes":
-            user_id = input("Enter your User ID: ")
-            if user_id in users_dict:
-                # Add the book to user's borrowed_books list
-                users_dict[user_id]['borrowed_books'].append(enter_title)
-                details["Availability"] = "no"
-                print(f"{enter_title} has been checked out.")
-                return
-            else:
-                print("User ID not found.")
-                return
-        elif enter_title.lower() == details["Title"].lower() and details["Availability"] == "no":
-            print(f"{enter_title} is not available.")
+    while True:
+        if len(library) == 0:
+            print("Library is empty")
+            break
+        
+        # Borrowing a book
+        enter_title = input("Enter title to Borrow: *enter 'done' when finished* ")
+        
+        if enter_title.lower() == 'done':
             return
-    print("Book is not in our library.")
+        
 
+        for isbn, details in library.items():
+            if enter_title.lower() == details["Title"].lower() and details["Availability"] == "yes":
+                user_id = input("Enter your User ID: ")
+                if user_id in users_dict:
+                    # Add the book to user's borrowed_books list
+                    users_dict[user_id]['borrowed_books'].append(enter_title)
+                    details["Availability"] = "no"
+                    print(f"{enter_title} has been checked out.")
+                    return
+                else:
+                    print("User ID not found.")
+                    return
+            elif enter_title.lower() == details["Title"].lower() and details["Availability"] == "no":
+                print(f"{enter_title} is not available.")
+                return
+        print("Book is not in our library.")
+
+# Function to return a borrowed book to the library
 def return_book(users_dict):
     while True:
         try:
@@ -93,8 +105,8 @@ def return_book(users_dict):
         except Exception as e:
             print("An error occurred:", e)
 
+# Function to search for a book in the library
 def search_book():
-    
     while True:
         try:
             if len(library) == 0:
@@ -117,9 +129,10 @@ def search_book():
                     continue
 
         except Exception as e:
-            print("An error has occured", e)
+            print("An error has occurred", e)
 
 def display_books():
+    # Function to display the titles of all books in the library
     while True:
         try:
             if len(library) == 0:
@@ -131,10 +144,11 @@ def display_books():
             break
 
         except Exception as e:
-            print("An error has occured", e)
+            print("An error has occurred", e)
 
 
 def book_operations(users_dict):
+    # Function to handle book-related operations
     while True:
         print("1. Add Book\n"
               "2. Borrow Book\n"
@@ -149,15 +163,15 @@ def book_operations(users_dict):
             elif enter_option not in range(1, 7):
                 print("Response must be between 1 and 6")
             elif enter_option == 1:
-                add_book()
+                add_book()  # Call function to add a book
             elif enter_option == 2:
-                borrow_book(users_dict)
+                borrow_book(users_dict)  # Call function to borrow a book
             elif enter_option == 3:
-                return_book(users_dict)
+                return_book(users_dict)  # Call function to return a book
             elif enter_option == 4:
-                search_book()
+                search_book()  # Call function to search for a book
             elif enter_option == 5:
-                display_books()
+                display_books()  # Call function to display all books
         except ValueError:
             print("Enter an integer between 1 and 6")
 

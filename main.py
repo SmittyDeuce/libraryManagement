@@ -1,11 +1,8 @@
 from book_operations import book_operations, library
 from user_operations import user_operations, users_dict
 from author_operations import author_operations, authors_dict
-
-
-
-
-
+from genre_operations import genre_operations, genres_dict
+# ISBN to copy for  book operations: 123-456789-712345-67
 
 
 def management_system():
@@ -37,8 +34,7 @@ def management_system():
                author_operations(authors_dict)
         
             elif enter_option == 4:
-                pass
-
+                genre_operations(genres_dict)
 
         except ValueError as e:
             print("Enter a number between 1 and 5")

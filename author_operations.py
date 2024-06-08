@@ -15,9 +15,11 @@ zodiac_signs = [
     "Pisces"
 ]
 
+# Function to add an author to the dictionary
 def add_author():
     while True:
         try:
+            # Prompt user to enter author details
             enter_name = input("Enter author name: *enter 'done' when finished ")
 
             if enter_name.lower() == 'done':
@@ -31,33 +33,31 @@ def add_author():
             enter_city = input("Enter birth city: ")
             enter_zodiac = input("Enter Zodiac: ")
 
+            # Validate entered Zodiac sign
             if enter_zodiac.lower() not in [sign.lower() for sign in zodiac_signs]:
                 print("Invalid response, check spelling.")
                 continue
             
+            # Create Author object and add to dictionary
             author = Author(enter_name, enter_age, enter_city, enter_zodiac)
-            
-            
             if enter_name not in authors_dict:
                 authors_dict[author.name] = {
-                "Zodiac": author.zodiac,
-                "Age": author.age,
-                "City": author.origin_place
+                    "Zodiac": author.zodiac,
+                    "Age": author.age,
+                    "City": author.origin_place
                 }
                 print(f"Author {enter_name} added.")
 
         except ValueError:
-            print("Age must be integer")
+            print("Age must be an integer")
             continue
         except Exception as e:
-            print("An error occured", e)
+            print("An error occurred:", e)
 
-
-
+# Function to display author details
 def author_details():
     while True:
         enter_name = input("Enter Name: *enter 'done' when finished\n")
-
 
         if enter_name.lower() == 'done':
             break
@@ -69,12 +69,11 @@ def author_details():
                 for key, value in details.items():
                     print(f"{key}: {value}")
                 break
-
         else:
             print("Author is not in our directory")
             continue
 
-
+# Function to display all authors
 def display_authors():
     while True:
         try:
@@ -84,9 +83,9 @@ def display_authors():
             break
 
         except Exception as e:
-            print("An error has occured", e)
+            print("An error has occurred", e)
 
-
+# Function to manage author operations
 def author_operations(authors_dict):
     while True:
         print("1. Add Author\n"
@@ -103,7 +102,7 @@ def author_operations(authors_dict):
                 print("Response must be between 1 and 4")
 
             elif enter_option == 1:
-                    add_author()
+                add_author()
 
             elif enter_option == 2:
                 if len(authors_dict) == 0:
