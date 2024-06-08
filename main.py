@@ -25,7 +25,7 @@ def management_system():
                book_operations()
 
             elif enter_option == 2:
-                # user_operations()
+                user_operations()
         
             elif enter_option == 3:
                pass
