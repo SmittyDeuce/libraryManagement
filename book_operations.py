@@ -1,3 +1,4 @@
+import re
 from book_class import Book
 
 # Initialize an empty library dictionary to store books
@@ -31,134 +32,145 @@ def add_book():
         else:
             print("This Book is already inside Library")
 
-# Function to borrow a book from the library
-def borrow_book(user):
+
+def borrow_book():
     while True:
         try:
-            enter_title = input("Enter title to borrow book: *enter 'done' when finished: ")
+            if len(library) == 0:
+                print("library is empty")
+                break
+
+            enter_title = input("Enter title to Borrow: *enter 'done' when finished ")
             if enter_title.lower() == 'done':
                 break
 
-            for isbn, details in library.items():
-                if enter_title.lower() == details["Title"].lower():
-                    if details["Availability"].lower() == "no":
-                        print(f"{enter_title} is currently checked out")
-                    elif details["Availability"].lower() == 'yes':
-                        details["Availability"] = "no"
-                        user.borrowed_books.append(details["Title"])  # Add to user's borrowed books
-                        print(f"{enter_title} has been checked out\n")
-                        print(f"Availability: {details['Availability']}")
-                    break
-            else:
-                print(f"{enter_title} not in Library")
-                continue
-        except Exception as e:
-            print("An error has occurred", e)
-            continue
+            book_found = False
 
-# Function to return a borrowed book to the library
-def return_book(user):
+            for isbn, details in library.items():
+
+                if enter_title == details["Title"]:
+                    book_found = True
+                    if details["Availability"].lower() == 'yes':
+                        print(f"{enter_title} has been checked out")
+                        details["Availability"] == 'no'
+
+                    elif details["Availability"].lower() == 'no':
+                        print(f"{enter_title} is not available")
+                    break
+
+            if not book_found:
+                print("Book is not in our Library")
+                
+        except Exception as e:
+            print("An error occured", e)
+
+def return_book():
     while True:
         try:
-            enter_title = input("Enter book title to return: *enter 'done' when finished\n")
+            if len(library) == 0:
+                print("library is empty")
+                break
+
+            enter_title = input("Enter title to return book: *enter 'done' when finished\n")
             if enter_title.lower() == 'done':
                 break
+            
+            book_found = False
             for isbn, details in library.items():
-                if enter_title.lower() == details["Title"].lower():
-                    if details["Availability"].lower() == 'no':
-                        details["Availability"] = 'yes'
-                        if enter_title in user.borrowed_books:
-                            user.borrowed_books.remove(enter_title)  # Remove from user's borrowed books
-                            print(f"Book returned\nTitle: {details['Title']} Availability: {details['Availability']}")
-                        else:
-                            print("Book was not borrowed by this user")
-                    elif details["Availability"].lower() == 'yes':
-                        print("Book has already been returned")
-                    break
-            else:
-                print("Book doesn't belong to this library")
-                continue
-        except Exception as e:
-            print("An error has occurred", e)
-            continue
+                if enter_title == details["Title"]:
+                    book_found = True
+                    if details["Availability"].lower() == "yes":
+                        print(f"{enter_title} has already been returned")
+                        continue
 
-# Function to search for a book in the library
-def search_for_book():
+                    elif details["Availability"].lower() == "no":
+                        print(f"{enter_title} has been returned")
+                        details["Availability"].lower() == "yes"
+                    break
+
+            if not book_found:
+                print("Book is not in our Library")
+
+
+
+        except Exception as e:
+            print("Am error occured", e)
+
+def search_book():
+    
     while True:
         try:
-            isbn_or_title = input("Enter ISBN or Title: *enter 'done' when finished ")
-            if isbn_or_title.lower() == 'done':
+            if len(library) == 0:
+                print("library is empty")
                 break
+
+            search_by = input("Enter Title or ISBN to Search: *enter 'done' when finished\n")
+            if search_by.lower() == 'done':
+                break
+
             for isbn, details in library.items():
-                if isbn == isbn_or_title or details["Title"].lower() == isbn_or_title.lower():
+                if search_by == isbn or details["Title"].lower() == search_by.lower():
                     print(f"ISBN: {isbn}")
                     for key, value in details.items():
                         print(f"{key}: {value}")
                     break
-            else:
-                print("ISBN or Title not found, try again")
-                continue
+
+                else:
+                    print("ISBN or Title not found, try again")
+                    continue
+
         except Exception as e:
-            print("An error has occurred", e)
-            continue
+            print("An error has occured", e)
 
-# Function to display all books in the library
-def display_library():
-    for isbn, details in library.items():
-        print(f"ISBN: {isbn}")
-        for key, value in details.items():
-            print(f"{key}: {value}")
-        break
-
-# Main function to handle book operations
-def book_Operations(user=None, operation=None):
-    print("1. Add Book\n"
-          "2. Borrow Book\n"
-          "3. Return Book\n"
-          "4. Search for Book\n"
-          "5. Display Library\n"
-          "6. Quit")
-    
+def display_books():
     while True:
         try:
-            menu_option = int(input("Enter Option: "))
-            if menu_option == 6:
+            if len(library) == 0:
+                print("library is empty")
                 break
-            elif menu_option not in range(1, 6):
-                print("Please enter one of the options")
-                continue
-            elif menu_option == 1:
+
+            for isbn, details in library.items():
+                print(f"Title: {details['Title']}")
+            break
+
+        except Exception as e:
+            print("An error has occured", e)
+
+def book_operations():
+    while True:
+        try:
+            print("1. Add Book\n"
+                "2. borrow Book\n"
+                "3. return Book\n"
+                "4. search Book\n"
+                "5. display Book\n"
+                "6. Quit")
+            
+            enter_option = int(input("Enter an Option: "))
+            if enter_option == 6:
+                break
+            
+            elif enter_option not in range(1,6):
+                print("respone must be between 1 and 6")
+
+            elif enter_option == 1:
                 add_book()
-            elif menu_option == 2:
-                if len(library) <= 0:
-                    print("Library is empty")
-                    continue
-                elif len(library) > 0:
-                    if user and operation == "borrow":
-                        borrow_book(user)
-                    else:
-                        print("User not specified for borrowing book.")
-            elif menu_option == 3:
-                if len(library) <= 0:
-                    print("Library is empty")
-                    continue
-                elif len(library) > 0:
-                    if user and operation == "return":
-                        return_book(user)
-                    else:
-                        print("User not specified for returning book.")
-            elif menu_option == 4:
-                if len(library) <= 0:
-                    print("Library is empty")
-                    continue
-                elif len(library) > 0:
-                    search_for_book()
-            elif menu_option == 5:
-                if len(library) <= 0:
-                    print("Library is empty")
-                    continue
-                else:
-                    display_library()
+            elif enter_option == 2:
+                borrow_book()
+            elif enter_option == 3:
+                return_book()
+            elif enter_option == 4:
+                search_book()
+            elif enter_option == 5:
+                display_books()
+
         except ValueError:
-            print("Menu Option must be number 1 - 6")
-            continue
+            print("Enter an integer between 1 and 6")
+
+# add_book()
+# # borrow_book()
+# # return_book()
+# search_book()
+# display_books()
+
+book_operations()
