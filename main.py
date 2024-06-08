@@ -1,7 +1,7 @@
 from book_operations import book_operations, library
 from user_operations import user_operations, users_dict
-from book_class import Book
-from user_class import User
+from author_operations import author_operations, authors_dict
+
 
 
 
@@ -34,13 +34,14 @@ def management_system():
                 user_operations()
         
             elif enter_option == 3:
-               print(library)
+               author_operations(authors_dict)
         
             elif enter_option == 4:
                 pass
 
 
-        except ValueError("Enter a number between 1 and 5"):
+        except ValueError as e:
+            print("Enter a number between 1 and 5")
             continue
 
 

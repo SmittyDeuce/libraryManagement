@@ -17,8 +17,8 @@ def add_users():
 
                 user = User(enter_name, enter_id)
                 users_dict[enter_id] = {
-                    "user_name":enter_name,
-                    "borrowed_books":user.borrowed_books
+                    "user name":enter_name,
+                    "borrowed books":user.borrowed_books
                 }
 
             else:
@@ -44,9 +44,10 @@ def user_details():
             found = False
             for user_id, details in users_dict.items():
                 if enter_id == user_id:
+                    print("")
                     print(f"User ID: {user_id}")
                     for key, value in details.items():
-                        print(f"{key}, {value}")
+                        print(f"{key}: {value}")
                     found = True
                     break
             
@@ -62,7 +63,7 @@ def display_users():
             print("User list is empty")
 
     for user_id, details in users_dict.items():
-        print(f"User ID: {user_id}\nUserName: {details['user_name']}")
+        print(f"User ID: {user_id}\nUser Name: {details['user name']}")
             
 def user_operations():
     while True:
