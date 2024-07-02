@@ -1,9 +1,15 @@
+import re
 from user_class import User  # Importing the User class from the user_class module
+from main_database import connect_database, close_database  # Importing database connection functions
 
-users_dict = {}  # Dictionary to store user information
+# Dictionary to store user information (temporarily, for initial setup and testing)
+users_dict = {}
 
 def add_users():
     """Function to add users to the library system."""
+    conn = connect_database()  # Establish a database connection
+    cursor = conn.cursor()  # Create a cursor object to execute SQL queries
+
     while True:
         try:
             enter_id = input("Enter an ID (7 digits): *enter 'done' when finished\n")
@@ -19,6 +25,14 @@ def add_users():
                 enter_name = input("Enter Name: *enter 'done' when finished\n")
 
                 user = User(enter_name, enter_id)
+
+                # Add user details to the database
+                cursor.execute(
+                    "INSERT INTO users (name, library_id) VALUES (%s, %s)",
+                    (enter_name, enter_id)
+                )
+                conn.commit()  # Commit the transaction
+
                 # Add user details to the users_dict dictionary
                 users_dict[enter_id] = {
                     "user name": enter_name,
@@ -32,11 +46,16 @@ def add_users():
 
         except Exception as e:
             # Catch any exceptions (e.g., invalid input) and inform the user
-            print("Names must be 2 letters or more\nID must be 7 digits")
+            print(f"Error: {e}")
             continue
+
+    close_database(conn)  # Close the database connection
 
 def user_details():
     """Function to display details of a specific user."""
+    conn = connect_database()  # Establish a database connection
+    cursor = conn.cursor(dictionary=True)  # Create a cursor object to execute SQL queries
+
     while True:
         try:
             if len(users_dict) == 0:
@@ -51,35 +70,48 @@ def user_details():
                 break
             
             found = False
-            for user_id, details in users_dict.items():
-                if enter_id == user_id:
-                    # If the entered ID matches an ID in the dictionary, display user details
-                    print("")
-                    print(f"User ID: {user_id}")
-                    for key, value in details.items():
-                        print(f"{key}: {value}")
-                    found = True
-                    break
-            
-            if not found:
+            cursor.execute("SELECT * FROM users WHERE library_id = %s", (enter_id,))
+            user = cursor.fetchone()
+            if user:
+                # If the entered ID matches an ID in the database, display user details
+                print("")
+                print(f"User ID: {user['library_id']}")
+                print(f"User Name: {user['name']}")
+                # Display borrowed books if needed
+                found = True
+            else:
                 # If the entered ID is not found in the dictionary, inform the user
                 print("User ID not found")
                 
         except Exception as e:
             # Catch any exceptions (e.g., invalid input) and inform the user
-            print("ID must be 7 digits")
+            print(f"Error: {e}")
             continue
+
+    close_database(conn)  # Close the database connection
 
 def display_users():
     """Function to display all users in the system."""
-    if len(users_dict) == 0:
-        # If the user dictionary is empty, inform the user
-        print("User list is empty")
+    conn = connect_database()  # Establish a database connection
+    cursor = conn.cursor(dictionary=True)  # Create a cursor object to execute SQL queries
 
-    for user_id, details in users_dict.items():
-        # Iterate through the user dictionary and display user IDs and names
-        print(f"User ID: {user_id}\nUser Name: {details['user name']}")
-            
+    try:
+        cursor.execute("SELECT * FROM users")
+        users = cursor.fetchall()
+
+        if not users:
+            # If the user dictionary is empty, inform the user
+            print("User list is empty")
+        else:
+            for user in users:
+                # Iterate through the user dictionary and display user IDs and names
+                print(f"User ID: {user['library_id']}\nUser Name: {user['name']}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    close_database(conn)  # Close the database connection
+
 def user_operations():
     """Function to manage user operations."""
     while True:
@@ -109,5 +141,4 @@ def user_operations():
                 display_users()
 
         except ValueError:
-            # Catch any exceptions (e.g., invalid input) and inform the user
             print("Enter an integer between 1 and 4")

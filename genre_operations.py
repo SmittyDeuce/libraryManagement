@@ -1,29 +1,41 @@
 from genre_class import Genre  # Importing the Genre class from the genre_class module
+from main_database import connect_database, close_database  # Import database connection functions
 
-genres_dict = {}  # Dictionary to store genre information
+# Initialize an empty dictionary to store genre information
+genres_dict = {}
 
+# Function to add a genre to the database
 def add_genre():
-    """Function to add a genre to the library system."""
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()
+
     while True:
         try:
+            # Prompt user to enter genre details
             enter_name = input("Enter genre name: *enter 'done' when finished ")
 
             if enter_name.lower() == 'done':
-                # If 'done' is entered, print the genres dictionary and exit the loop
+                # Print the genres dictionary and exit the loop when 'done' is entered
                 print(genres_dict)
                 break
             if enter_name in genres_dict:
-                # If the entered genre name is already in the dictionary, inform the user
+                # Check if the genre is already listed
                 print("Genre is already listed")
                 continue
 
             enter_description = input("Enter description: ")
             enter_category = input("Enter category: ")
 
+            # Create Genre object and add to dictionary
             genre = Genre(enter_name, enter_description, enter_category)
-
             if enter_name not in genres_dict:
-                # If the genre name is not already in the dictionary, add it along with its details
+                # Insert genre details into the database
+                cursor.execute("""
+                    INSERT INTO genres (name, description, category)
+                    VALUES (%s, %s, %s)
+                """, (enter_name, enter_description, enter_category))
+                conn.commit()
+
                 genres_dict[genre.name] = {
                     "Description": genre.description,
                     "Category": genre.category
@@ -31,40 +43,53 @@ def add_genre():
                 print(f"Genre {enter_name} added.")
 
         except Exception as e:
-            # Catch any exceptions (e.g., invalid input) and inform the user
             print("An error occurred:", e)
+    
+    close_database(conn, cursor)  # Close the database connection
 
+# Function to display genre details
 def genre_details():
-    """Function to display details of a specific genre."""
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()
+
     while True:
         enter_name = input("Enter Genre Name: *enter 'done' when finished\n")
 
         if enter_name.lower() == 'done':
-            # If 'done' is entered, exit the loop
             break
 
-        if enter_name in genres_dict:
-            # If the entered genre name is found in the dictionary, display its details
+        cursor.execute("SELECT * FROM genres WHERE name = %s", (enter_name,))
+        result = cursor.fetchone()
+        if result:
             print("")
-            print(f"Name: {enter_name}")
-            for key, value in genres_dict[enter_name].items():
-                print(f"{key.capitalize()}: {value}")
+            print(f"Name: {result[1]}")
+            print(f"Description: {result[2]}")
+            print(f"Category: {result[3]}")
         else:
-            # If the entered genre name is not found in the dictionary, inform the user
             print("Genre is not in our directory")
+    
+    close_database(conn, cursor)  # Close the database connection
 
+# Function to display all genres
 def display_genres():
-    """Function to display all genres in the system."""
-    if len(genres_dict) == 0:
-        # If the genre dictionary is empty, inform the user
-        print("Genres directory is empty")
-    else:
-        # Otherwise, iterate through the dictionary and display all genre names
-        for genre in genres_dict:
-            print(f"Genre Name: {genre}")
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()
 
+    while True:
+        try:
+            cursor.execute("SELECT name FROM genres")
+            results = cursor.fetchall()
+            for result in results:
+                print(f"Genre Name: {result[0]}")
+            break
+
+        except Exception as e:
+            print("An error has occurred", e)
+    
+    close_database(conn, cursor)  # Close the database connection
+
+# Function to manage genre operations
 def genre_operations(genres_dict):
-    """Function to manage genre operations."""
     while True:
         print("1. Add Genre\n"
               "2. View Genre Details\n"
@@ -74,33 +99,19 @@ def genre_operations(genres_dict):
             enter_option = int(input("Enter an Option: "))
 
             if enter_option == 4:
-                # If '4' is entered, exit the loop and quit the program
                 break
 
             elif enter_option not in range(1, 5):
-                # If an invalid option is entered, inform the user
                 print("Response must be between 1 and 4")
 
             elif enter_option == 1:
-                # If '1' is entered, call the add_genre() function to add a genre
                 add_genre()
 
             elif enter_option == 2:
-                # If '2' is entered, call the genre_details() function to display genre details
-                if len(genres_dict) == 0:
-                    print("Authors directory is empty")
-                    continue
-                else:
-                    genre_details()
+                genre_details()
 
             elif enter_option == 3:
-                # If '3' is entered, call the display_genres() function to display all genres
-                if len(genres_dict) == 0:
-                    print("Authors directory is empty")
-                    continue
-                else:
-                    display_genres()
+                display_genres()
 
         except ValueError:
-            # Catch any exceptions (e.g., invalid input) and inform the user
             print("Enter an integer between 1 and 4")

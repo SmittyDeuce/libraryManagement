@@ -1,154 +1,155 @@
 import re
+import mysql.connector
+from main_database import connect_database, close_database
 from book_class import Book
-
-# Initialize an empty library dictionary to store books
-library = {}
 
 # Function to add a book to the library
 def add_book():
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()  # Create a cursor object for executing SQL queries
+    
     while True:
         # Prompt user to enter book details
         enter_title = input("Enter Title: *enter 'done' when finished* ")
         if enter_title.lower() == 'done':
-            # If user inputs 'done', print the library and exit the loop
-            print(library)
+            # If user inputs 'done', exit the loop
             break
 
         enter_author = input("Enter author: ")
         enter_isbn = input("Enter ISBN: ")
         enter_genre = input("Enter genre: ")
-        enter_publication_date = input("Enter publication date (MM-DD-YYYY): ")
-        enter_availability = input("Enter availability (Yes/No): ")
+        enter_publication_date = input("Enter publication date (YYYY-MM-DD): ")
+        enter_availability = input("Enter availability (Yes/No): ").lower()
 
         # Create a new Book instance
         library_book = Book(enter_title, enter_author, enter_isbn, enter_genre, enter_publication_date, enter_availability)
+
+        try:
+            # Insert the book details into the books table
+            cursor.execute("""
+                INSERT INTO books (title, author_id, genre_id, isbn, publication_date, availability)
+                VALUES (%s, (SELECT id FROM authors WHERE name=%s), (SELECT id FROM genres WHERE name=%s), %s, %s, %s)
+            """, (library_book.title, library_book.author, library_book.genre, library_book.isbn, library_book.publication_date, library_book.availability == 'yes'))
+            
+            conn.commit()  # Commit the transaction
+            print(f"Book '{library_book.title}' added to the library.")
         
-        # Check if the book's ISBN is not already in the library
-        if library_book.isbn not in library:
-            # Add the book to the library dictionary
-            library[library_book.isbn] = {
-                "Title": library_book.title,
-                "Author": library_book.author,
-                "Genre": library_book.genre,
-                "Publication Date": library_book.publication_date,
-                "Availability": library_book.availability
-            }
-        else:
-            print("This Book is already inside Library")
+        except mysql.connector.Error as err:
+            print(f"Error: {err}")
+        
+    close_database(conn, cursor)  # Close the database connection
 
 # Function to borrow a book from the library
 def borrow_book(users_dict):
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()  # Create a cursor object for executing SQL queries
+    
     while True:
-        if len(library) == 0:
-            print("Library is empty")
+        enter_title = input("Enter title to Borrow: *enter 'done' when finished* ")
+        if enter_title.lower() == 'done':
             break
         
-        # Borrowing a book
-        enter_title = input("Enter title to Borrow: *enter 'done' when finished* ")
+        # Search for the book by title in the books table
+        cursor.execute("SELECT id, availability FROM books WHERE title = %s", (enter_title,))
+        book = cursor.fetchone()
         
-        if enter_title.lower() == 'done':
-            return
-        
-
-        for isbn, details in library.items():
-            if enter_title.lower() == details["Title"].lower() and details["Availability"] == "yes":
+        if book:
+            book_id, availability = book
+            if availability:
                 user_id = input("Enter your User ID: ")
                 if user_id in users_dict:
-                    # Add the book to user's borrowed_books list
-                    users_dict[user_id]['borrowed_books'].append(enter_title)
-                    details["Availability"] = "no"
+                    # Insert a record into borrowed_books table and update book availability
+                    cursor.execute("""
+                        INSERT INTO borrowed_books (user_id, book_id, borrow_date)
+                        VALUES (%s, %s, CURDATE())
+                    """, (user_id, book_id))
+                    
+                    cursor.execute("UPDATE books SET availability = 0 WHERE id = %s", (book_id,))
+                    conn.commit()  # Commit the transaction
                     print(f"{enter_title} has been checked out.")
-                    return
                 else:
                     print("User ID not found.")
-                    return
-            elif enter_title.lower() == details["Title"].lower() and details["Availability"] == "no":
+            else:
                 print(f"{enter_title} is not available.")
-                return
-        print("Book is not in our library.")
+        else:
+            print("Book is not in our library.")
+    
+    close_database(conn, cursor)  # Close the database connection
 
 # Function to return a borrowed book to the library
 def return_book(users_dict):
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()  # Create a cursor object for executing SQL queries
+
     while True:
-        try:
-            # Check if the library is empty
-            if len(library) == 0:
-                print("Library is empty")
-                break
+        enter_title = input("Enter title to return book: *enter 'done' when finished* \n")
+        if enter_title.lower() == 'done':
+            break
+        
+        # Search for the book by title in the books table
+        cursor.execute("SELECT id FROM books WHERE title = %s", (enter_title,))
+        book = cursor.fetchone()
 
-            # Prompt the user to enter the title of the book they want to return
-            enter_title = input("Enter title to return book: *enter 'done' when finished* \n")
-            if enter_title.lower() == 'done':
-                break
-            
-            book_found = False
-            for isbn, details in library.items():
-                if enter_title.lower() == details["Title"].lower():  # Ensure case-insensitive comparison
-                    book_found = True
-                    if details["Availability"].lower() == "yes":
-                        print(f"{enter_title} has already been returned.")
-                        continue
-
-                    elif details["Availability"].lower() == "no":
-                        user_id = input("Enter your User ID: ")
-                        if user_id in users_dict and enter_title in users_dict[user_id]['borrowed_books']:
-                            print(f"{enter_title} has been returned.")
-                            details["Availability"] = "yes"
-                            users_dict[user_id]['borrowed_books'].remove(enter_title)
-                        else:
-                            print(f"{enter_title} is not borrowed by this user.")
-                    break
-
-            if not book_found:
-                print("Book is not in our library.")
-
-        except Exception as e:
-            print("An error occurred:", e)
+        if book:
+            book_id = book[0]
+            user_id = input("Enter your User ID: ")
+            if user_id in users_dict:
+                # Delete the record from borrowed_books table and update book availability
+                cursor.execute("""
+                    DELETE FROM borrowed_books
+                    WHERE user_id = %s AND book_id = %s
+                """, (user_id, book_id))
+                
+                cursor.execute("UPDATE books SET availability = 1 WHERE id = %s", (book_id,))
+                conn.commit()  # Commit the transaction
+                print(f"{enter_title} has been returned.")
+            else:
+                print(f"{enter_title} is not borrowed by this user.")
+        else:
+            print("Book is not in our library.")
+    
+    close_database(conn, cursor)  # Close the database connection
 
 # Function to search for a book in the library
 def search_book():
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()  # Create a cursor object for executing SQL queries
+
     while True:
-        try:
-            if len(library) == 0:
-                print("library is empty")
-                break
-
-            search_by = input("Enter Title or ISBN to Search: *enter 'done' when finished\n")
-            if search_by.lower() == 'done':
-                break
-
-            for isbn, details in library.items():
-                if search_by == isbn or details["Title"].lower() == search_by.lower():
-                    print(f"ISBN: {isbn}")
-                    for key, value in details.items():
-                        print(f"{key}: {value}")
-                    break
-
-                else:
-                    print("ISBN or Title not found, try again")
-                    continue
-
-        except Exception as e:
-            print("An error has occurred", e)
-
-def display_books():
-    # Function to display the titles of all books in the library
-    while True:
-        try:
-            if len(library) == 0:
-                print("library is empty")
-                break
-
-            for isbn, details in library.items():
-                print(f"Title: {details['Title']}")
+        search_by = input("Enter Title or ISBN to Search: *enter 'done' when finished\n")
+        if search_by.lower() == 'done':
             break
+        
+        # Search for the book by ISBN or title in the books table
+        cursor.execute("SELECT * FROM books WHERE isbn = %s OR title = %s", (search_by, search_by))
+        book = cursor.fetchone()
 
-        except Exception as e:
-            print("An error has occurred", e)
+        if book:
+            print(f"ID: {book[0]}, Title: {book[1]}, Author ID: {book[2]}, Genre ID: {book[3]}, ISBN: {book[4]}, Publication Date: {book[5]}, Availability: {'Yes' if book[6] else 'No'}")
+        else:
+            print("Book not found.")
+    
+    close_database(conn, cursor)  # Close the database connection
 
+# Function to display the titles of all books in the library
+def display_books():
+    conn = connect_database()  # Establish database connection
+    cursor = conn.cursor()  # Create a cursor object for executing SQL queries
 
+    # Select all book titles from the books table
+    cursor.execute("SELECT title FROM books")
+    books = cursor.fetchall()
+
+    if books:
+        for book in books:
+            print(f"Title: {book[0]}")
+    else:
+        print("Library is empty.")
+    
+    close_database(conn, cursor)  # Close the database connection
+
+# Function to handle book-related operations
 def book_operations(users_dict):
-    # Function to handle book-related operations
     while True:
         print("1. Add Book\n"
               "2. Borrow Book\n"
@@ -174,11 +175,3 @@ def book_operations(users_dict):
                 display_books()  # Call function to display all books
         except ValueError:
             print("Enter an integer between 1 and 6")
-
-# add_book()
-# # borrow_book()
-# # return_book()
-# search_book()
-# display_books()
-
-# book_operations()
